@@ -5,61 +5,68 @@
       <!-- <i v-show="!loading" class="el-icon-refresh new-refresh" @click="list"></i> -->
       <!-- <m-loading v-show="loading" class="new-refresh" color="#038E5A" bg-color="#D81A79"></m-loading> -->
       <el-timeline>
-        <el-timeline-item v-for="online in onlineList" :key="online.id">
-          <el-card>
-            <el-link type="danger" @click.stop.prevent="openNeedOperateDialog(online)" >{{online | formateDate}} 上线计划</el-link>
-            <br />
-            <el-link type="primary" @click.stop.prevent="openNeedOperateDialog(online)" >{{online | userInfo}}</el-link>
-            <el-collapse accordion >
-              <el-collapse-item :disabled="online.needList.length === 0">
-                 <template slot="title">
-                  上线需求<i class="header-icon el-icon-info"></i>
-                </template>
-                <el-row :gutter="10">
-                  <el-col v-for="(need, needIndex) in online.needList" :key="need.id" :span="8" style="margin-top: 10px;"  >
-                    <el-card shadow="hover" @click.native="openOnlineNeedDrawer(need)">
-                      {{ (needIndex + 1) + '、' }}{{ need | needInfo(onlineNeedTypes) }}
-                    </el-card>
-                  </el-col>
-                </el-row>
-              </el-collapse-item>
-            </el-collapse>
-            <el-collapse accordion>
-              <el-collapse-item>
-                <template slot="title">
-                  文件库<i class="header-icon el-icon-info"></i>
-                </template>
-                <div v-loading="isUploading" element-loading-text="拼命上传中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" >
-                  <el-upload class="upload-demo" drag :action="uploadAction + online.id" :show-file-list="false" :on-success="uploadSuccess" :on-progress="uploading" :on-error="uploadErr" >
-                    <i class="el-icon-upload"></i>
-                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                  </el-upload>
-                  <ul class="el-upload-list el-upload-list--picture-card">
-                    <li v-for="(file, fileIndex) in online.fileList" :key="file.id" class="el-upload-list__item is-success">
-                      <div>
-                        <span>{{ file.originName }}</span>
-                        <span class="el-upload-list__item-actions">
-                          <span class="el-upload-list__item-delete">
-                            <a :href="downloadAction + file.id" ><i class="el-icon-download"></i></a>
+        
+          <el-timeline-item v-for="online in onlineList" :key="online.id">
+            <el-card>
+              <el-link type="danger" @click.stop.prevent="openNeedOperateDialog(online)" >{{online | formateDate}} 上线计划</el-link>
+              <br />
+              <el-link type="primary" @click.stop.prevent="openNeedOperateDialog(online)" >{{online | userInfo}}</el-link>
+              <el-collapse accordion >
+                <el-collapse-item :disabled="online.needList.length === 0">
+                  <template slot="title">
+                    上线需求<span style="color:#ff0000; margin-left:5px;">[{{ online.needList.length }}]</span>
+                  </template>
+                  <el-row :gutter="10">
+                    <draggable v-model="online.needList" :options="{group:'needList', sort: false,animation:150,scroll:true,scrollSensitivity:200}" 
+                     :move="dragMove" >
+                    <!-- @change="dragChange" @start="dragStart" @end="dragEnd"  -->
+                      <el-col v-for="(need, needIndex) in online.needList" :key="need.id" :span="8" style="margin-top: 10px;" >
+                        <!-- @dragstart.native="dragstart($event,online)" @dragend.native="dragend($event,online)" @drop.native="drop($event,online)" @dragleave.native="dragleave($event,online)" @dragover.native="dragover($event,online)"  -->
+                        <el-card shadow="hover" @click.native="openOnlineNeedDrawer(need)" >
+                          {{ (needIndex + 1) + '、' }}{{ need | needInfo(onlineNeedTypes) }}
+                        </el-card>
+                      </el-col>
+                    </draggable>
+                  </el-row>
+                </el-collapse-item>
+              </el-collapse>
+              <el-collapse accordion>
+                <el-collapse-item>
+                  <template slot="title">
+                    文件库<span style="color:#ff0000; margin-left:5px;">[{{ online.fileList.length }}]</span>
+                  </template>
+                  <div v-loading="isUploading" element-loading-text="拼命上传中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" >
+                    <el-upload class="upload-demo" drag :action="uploadAction + online.id" :show-file-list="false" :on-success="uploadSuccess" :on-progress="uploading" :on-error="uploadErr" >
+                      <i class="el-icon-upload"></i>
+                      <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    </el-upload>
+                    <ul class="el-upload-list el-upload-list--picture-card">
+                      <li v-for="(file, fileIndex) in online.fileList" :key="file.id" class="el-upload-list__item is-success">
+                        <div>
+                          <span>{{ file.originName }}</span>
+                          <span class="el-upload-list__item-actions">
+                            <span class="el-upload-list__item-delete">
+                              <a :href="downloadAction + file.id" ><i class="el-icon-download"></i></a>
+                            </span>
+                            <span class="el-upload-list__item-delete" @click="remove(file.id, online.fileList, fileIndex)"><i class="el-icon-delete"></i></span>
                           </span>
-                          <span class="el-upload-list__item-delete" @click="remove(file.id, online.fileList, fileIndex)"><i class="el-icon-delete"></i></span>
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
-            <el-collapse accordion>
-              <el-collapse-item :disabled="online.needList.length === 0">
-                 <template slot="title">
-                  预览<i class="header-icon el-icon-info"></i>
-                </template>
-                <app-preview :onlineInfo="online"></app-preview>
-              </el-collapse-item>
-            </el-collapse>
-          </el-card>
-        </el-timeline-item>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
+              <el-collapse accordion>
+                <el-collapse-item :disabled="online.needList.length === 0">
+                  <template slot="title">
+                    预览<i class="header-icon el-icon-info"></i>
+                  </template>
+                  <app-preview :onlineInfo="online"></app-preview>
+                </el-collapse-item>
+              </el-collapse>
+            </el-card>
+          </el-timeline-item>
+        
       </el-timeline>
     </m-box>
 
@@ -281,9 +288,12 @@ import { fronts, servers, gits, commons } from './data/projects'
 import { onlineTimes, shortcuts, onlineAppformRules, onlineNeedTypes } from './data/onlineTools'
 import person from './data/person'
 import appPreview from '@/components/app-preview'
+import draggable from 'vuedraggable'
+
 export default {
   components: {
-    appPreview
+    appPreview,
+    draggable
   },
   data () {
     return {
@@ -981,6 +991,39 @@ export default {
         project.status = 0
         project.icon = 0
       }
+    },
+    dragStart (e) {
+      console.log('dragStart', e)
+    },
+    dragEnd (e) {
+      console.log('dragEnd', e)
+    },
+    async dragMove (e) {
+      let that = this
+      let needId = e.draggedContext.element.id
+      let appId = e.relatedContext.element.appId
+      e.draggedContext.element.appId = appId
+      await api({
+        url: '/api/onlineneed/' + needId + '/' + appId,
+        method: 'PUT',
+        success (response) {
+          that.$notify({
+            type: 'success',
+            title: '成功',
+            message: '需求迁移成功'
+          })
+        },
+        error (response) {
+          that.$notify.error({
+            title: '失败',
+            message: '需求迁移失败'
+          })
+        }
+      })
+      // await this.list()
+    },
+    dragChange (e) {
+      console.log('dragovdragChangeer', e)
     }
   },
   computed: {
