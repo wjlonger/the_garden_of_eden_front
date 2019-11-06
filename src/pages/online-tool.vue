@@ -2,8 +2,6 @@
   <div class="cnode-container">
     <m-box>
       <el-button type="text" @click="dialogFormVisible = true">开始新的上线计划</el-button>
-      <!-- <i v-show="!loading" class="el-icon-refresh new-refresh" @click="list"></i> -->
-      <!-- <m-loading v-show="loading" class="new-refresh" color="#038E5A" bg-color="#D81A79"></m-loading> -->
       <el-timeline>
         
           <el-timeline-item v-for="online in onlineList" :key="online.id">
@@ -17,15 +15,15 @@
                     上线需求<span style="color:#ff0000; margin-left:5px;">[{{ online.needList.length }}]</span>
                   </template>
                   <el-row :gutter="10">
-                    <draggable v-model="online.needList" :options="{group:'needList', sort: false,animation:150,scroll:true,scrollSensitivity:200}" 
+                    <draggable :list="online.needList" :options="{group:'needList', sort: false,animation:150,scroll:true,scrollSensitivity:200}" 
                      :move="dragMove" >
-                    <!-- @change="dragChange" @start="dragStart" @end="dragEnd"  -->
+                     <transition-group>
                       <el-col v-for="(need, needIndex) in online.needList" :key="need.id" :span="8" style="margin-top: 10px;" >
-                        <!-- @dragstart.native="dragstart($event,online)" @dragend.native="dragend($event,online)" @drop.native="drop($event,online)" @dragleave.native="dragleave($event,online)" @dragover.native="dragover($event,online)"  -->
                         <el-card shadow="hover" @click.native="openOnlineNeedDrawer(need)" >
-                          {{ (needIndex + 1) + '、' }}{{ need | needInfo(onlineNeedTypes) }}
+                          {{ needIndex + 1 }}、{{ need | needInfo(onlineNeedTypes) }}
                         </el-card>
                       </el-col>
+                      </transition-group>
                     </draggable>
                   </el-row>
                 </el-collapse-item>
