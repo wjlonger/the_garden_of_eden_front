@@ -1,5 +1,7 @@
 <template >
-    <div class="app-preview" :id="'app-preview-' + onlineInfo.id" @dblclick="copy">
+<el-tabs :tab-position="'left'">
+    <el-tab-pane label="预览">
+      <div class="app-preview" :id="'app-preview-' + onlineInfo.id" @dblclick="copy">
         {{ total }}&nbsp;&nbsp;您好：
         <div>
             <div class="preview-main-title">一、上线时间</div>
@@ -228,22 +230,36 @@
             </tbody>
           </table>
         </div>
-    </div>
+      </div>
+    </el-tab-pane>
+    <el-tab-pane label="运维">
+      <el-card class="box-card" v-if="needPassword">
+        <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
+        <div class="demo-drawer__footer" style="margin-top:10px">
+          <el-button @click="getPassword(onlineInfo.id)" >获 取 密 码</el-button>
+          <el-button type="primary" >确 定</el-button>
+        </div>
+      </el-card>
+    </el-tab-pane>
+    <el-tab-pane label="测试"></el-tab-pane>
+  </el-tabs>
 </template>
 <script>
 
 import { onlineTimes, onlineNeedTypes } from '@/pages/data/onlineTools'
 import { onlineFlow } from './data/onlinePerview'
 import { eastServers, commons } from '@/pages/data/projects'
+import {api} from '@/api/api'
 
 export default {
-  props: ['onlineInfo'],
+  props: ['onlineInfo','needPassword'],
   data () {
     return {
       onlineFlow,
       onlineNeedTypes,
       eastServers,
-      commons
+      commons,
+      password: ''
     }
   },
   filters: {
@@ -492,6 +508,14 @@ export default {
       }
       document.execCommand('Copy', 'false', null)
       setTimeout(() => window.getSelection().empty(), 100)
+    },
+    async getPassword(id){
+      await api({
+        url: '/api/password/' + id + '?httpToken=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
+        success: function (response) {
+          console.log(response);
+        }
+      })
     }
   }
 }

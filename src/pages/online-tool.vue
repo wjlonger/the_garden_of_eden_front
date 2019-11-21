@@ -59,7 +59,7 @@
                   <template slot="title">
                     预览<i class="header-icon el-icon-info"></i>
                   </template>
-                  <app-preview :onlineInfo="online"></app-preview>
+                  <app-preview :onlineInfo="online" :needPassword="true"></app-preview>
                 </el-collapse-item>
               </el-collapse>
             </el-card>
