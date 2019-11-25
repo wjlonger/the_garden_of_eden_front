@@ -233,15 +233,88 @@
       </div>
     </el-tab-pane>
     <el-tab-pane label="运维">
-      <el-card class="box-card" v-if="needPassword">
-        <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
-        <div class="demo-drawer__footer" style="margin-top:10px">
-          <el-button @click="getPassword(onlineInfo.id)" >获 取 密 码</el-button>
-          <el-button type="primary" >确 定</el-button>
+      <template v-if="onlineDetail && onlineDetail.length > 0">
+        <div class="app-preview">
+          <el-tabs :tab-position="'top'">
+            <el-tab-pane label="华东">
+              <table class="preview-border" border="1">
+                <thead>
+                  <tr>
+                      <th>应用名称</th>
+                      <th>已构建版本</th>
+                      <th>构建时间</th>
+                      <th>计划构建版本</th>
+                      <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(common, commonIndex) in commons" :key="commonIndex">
+                    <td>{{ common }}</td>
+                    <td> - </td>
+                    <td>{{ common | buildTime(finishDetail, 'hd') }}</td>
+                    <td> - </td>
+                    <td style="text-align:center;">
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, null)"></el-button>
+                    </td>
+                  </tr>
+                  <tr v-for="(project, projectIndex) in buildEastProjects" :key="project.id + '-' + projectIndex">
+                    <td>{{ project.projectName }}</td>
+                    <td>{{ project.projectName | buildVersion(finishDetail, 'hd') }}</td>
+                    <td>{{ project.projectName | buildTime(finishDetail, 'hd') }}</td>
+                    <td>
+                      <div class="el-input">
+                        <input type="text" placeholder="请输入构建版本" class="el-input__inner" v-model="project.buildVersion">
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, project.buildVersion)"></el-button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </el-tab-pane>
+            <el-tab-pane label="华北">
+              <table class="preview-border" border="1">
+                <thead>
+                  <tr>
+                      <th>应用名称</th>
+                      <th>已构建版本</th>
+                      <th>构建时间</th>
+                      <th>计划构建版本</th>
+                      <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(project, projectIndex) in buildNorthProjects" :key="project.id + '-' + projectIndex">
+                    <td>{{ project.projectName }}</td>
+                    <td>{{ project.projectName | buildVersion(finishDetail, 'hb') }}</td>
+                    <td>{{ project.projectName | buildTime(finishDetail, 'hb') }}</td>
+                    <td>
+                      <div class="el-input">
+                        <input type="text" placeholder="请输入构建版本" class="el-input__inner" v-model="project.buildVersion">
+                      </div>
+                    </td>
+                    <td style="text-align:center;">
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hb', project.projectName, project.buildVersion)"></el-button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </el-tab-pane>
+          </el-tabs>
         </div>
-      </el-card>
+      </template>
+      <template v-else>
+        <el-card class="box-card">
+          <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
+          <div class="demo-drawer__footer" style="margin-top:10px">
+            <el-button @click="getPassword" >获 取 密 码</el-button>
+            <el-button @click="getOnlineNeedDetail" type="primary" >确 定</el-button>
+          </div>
+        </el-card>
+      </template>
     </el-tab-pane>
-    <el-tab-pane label="测试"></el-tab-pane>
+    <!-- <el-tab-pane label="测试"></el-tab-pane> -->
   </el-tabs>
 </template>
 <script>
@@ -250,16 +323,19 @@ import { onlineTimes, onlineNeedTypes } from '@/pages/data/onlineTools'
 import { onlineFlow } from './data/onlinePerview'
 import { eastServers, commons } from '@/pages/data/projects'
 import {api} from '@/api/api'
+import md5 from 'js-md5'
 
 export default {
-  props: ['onlineInfo','needPassword'],
+  props: ['onlineInfo'],
   data () {
     return {
       onlineFlow,
       onlineNeedTypes,
       eastServers,
       commons,
-      password: ''
+      password: '',
+      onlineDetail: [],
+      finishDetail: []
     }
   },
   filters: {
@@ -317,6 +393,29 @@ export default {
         return userNameArr.join('，')
       }
       return ''
+    },
+    buildTime: function (projectName, finishDetail, area) {
+      for (let detail of finishDetail) {
+        if (detail.onlineAppName === projectName && detail.area === area) {
+          let buildTime = new Date(detail.updateTime)
+          let y = buildTime.getFullYear()
+          let M = buildTime.getMonth() + 1
+          let d = buildTime.getDate()
+          let h = buildTime.getHours()
+          let m = buildTime.getMinutes()
+          let s = buildTime.getSeconds()
+          return y + '-' + M + '-' + d + ' ' + h + ':' + m + ':' + s
+        }
+      }
+      return '-'
+    },
+    buildVersion: function (projectName, finishDetail, area) {
+      for (let detail of finishDetail) {
+        if (detail.onlineAppName === projectName && detail.area === area) {
+          return detail.onlineVersion
+        }
+      }
+      return '-'
     }
   },
   computed: {
@@ -422,6 +521,21 @@ export default {
         return project1.projectName > project2.projectName ? 1 : -1
       })
     },
+    buildNorthProjects () {
+      let projects = []
+      let projectNames = []
+      this.onlineDetail.forEach(detail => {
+        if (projectNames.indexOf(detail.projectName) === -1) {
+          let detailTemp = JSON.parse(JSON.stringify(detail))
+          detailTemp.buildVersion = this.onlineInfo.version
+          projects.push(detailTemp)
+          projectNames.push(detail.projectName)
+        }
+      })
+      return projects.sort((project1, project2) => {
+        return project1.projectName > project2.projectName ? 1 : -1
+      })
+    },
     eastProjects () {
       let projects = []
       for (let project of this.northProjects) {
@@ -431,6 +545,17 @@ export default {
           }
         }
       }
+      return projects
+    },
+    buildEastProjects () {
+      let projects = []
+      this.buildNorthProjects.forEach(north => {
+        this.eastServers.forEach(eastServer => {
+          if (north.projectName === eastServer.value) {
+            projects.push(JSON.parse(JSON.stringify(north)))
+          }
+        })
+      })
       return projects
     },
     hasSql () {
@@ -468,6 +593,9 @@ export default {
           return remark.remarkType === 3
         })
       }).flat()
+    },
+    passwordProxy () {
+      return md5(this.password)
     }
   },
   methods: {
@@ -509,11 +637,83 @@ export default {
       document.execCommand('Copy', 'false', null)
       setTimeout(() => window.getSelection().empty(), 100)
     },
-    async getPassword(id){
+    async getPassword () {
+      if (!this.onlineInfo.version) {
+        this.$notify.error({
+          title: '失败',
+          message: '本次上线版本还未填写哦~'
+        })
+        return
+      }
+      let that = this
       await api({
-        url: '/api/password/' + id + '?httpToken=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
+        url: '/api/password/' + this.onlineInfo.id + '?httpToken=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
         success: function (response) {
-          console.log(response);
+          if (response.data.success) {
+            that.$notify({
+              title: '成功',
+              message: response.data.msg,
+              type: 'success'
+            })
+          } else {
+            that.$notify.error({
+              title: '错误',
+              message: response.data.msg
+            })
+          }
+        },
+        error: function (response) {
+          that.$notify.error({
+            title: '取消',
+            message: '获取密码失败，请重新获取！'
+          })
+        }
+      })
+    },
+    async getOnlineNeedDetail () {
+      if (!this.onlineInfo.version) {
+        this.$notify.error({
+          title: '失败',
+          message: '本次上线版本还未填写哦~'
+        })
+        return
+      }
+      let that = this
+      await api({
+        url: '/api/onlineneeddetail/' + this.onlineInfo.id + '?password=' + this.passwordProxy,
+        success: function (response) {
+          if (response.data.success) {
+            that.onlineDetail = response.data.data.onlineDetail
+            that.finishDetail = response.data.data.finishDetail
+          } else {
+            that.$notify.error({
+              title: '错误',
+              message: response.data.msg
+            })
+          }
+        },
+        error: function (response) {
+          that.$notify.error({
+            title: '失败',
+            message: '请求失败，请稍后再次尝试'
+          })
+        }
+      })
+    },
+    async build (region, taskName, tag) {
+      await api({
+        url: '/api/onlineapp/build',
+        params: {
+          appId: this.onlineInfo.id,
+          region: region,
+          taskName: taskName,
+          tag: tag,
+          httpToken: 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
+          password: this.passwordProxy
+        },
+        method: 'POST',
+        success: function (response) {
+          console.log(response)
         }
       })
     }

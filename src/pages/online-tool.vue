@@ -59,7 +59,7 @@
                   <template slot="title">
                     预览<i class="header-icon el-icon-info"></i>
                   </template>
-                  <app-preview :onlineInfo="online" :needPassword="true"></app-preview>
+                  <app-preview :onlineInfo="online" ></app-preview>
                 </el-collapse-item>
               </el-collapse>
             </el-card>
@@ -360,12 +360,12 @@ export default {
   filters: {
     formateDate: function (value) {
       let date = new Date(value.date)
-      let year = date.getFullYear()
-      let month = date.getMonth() + 1
-      let day = date.getDate()
-      let hour = parseInt(value.time / 60)
-      let minute = value.time % 60
-      return year + '-' + month + '-' + day + ' ' + hour + ':' + minute
+      let y = date.getFullYear()
+      let M = date.getMonth() + 1
+      let d = date.getDate()
+      let h = date.getHours()
+      let m = date.getMinutes()
+      return y + '-' + M + '-' + d + ' ' + h + ':' + m
     },
     userInfo: function (value) {
       return '申请人：' + value.name + '  手机号：' + value.phone + '  邮箱：' + value.email
@@ -1035,6 +1035,7 @@ export default {
   beforeCreate () {
     window.parent.postMessage('ok', '*')
     window.addEventListener('message', function (event) {
+      console.log(event)
     })
   }
 }
