@@ -59,7 +59,7 @@
                   <template slot="title">
                     预览<i class="header-icon el-icon-info"></i>
                   </template>
-                  <app-preview :onlineInfo="online" ></app-preview>
+                  <app-preview :onlineInfo="online" :token="token" ></app-preview>
                 </el-collapse-item>
               </el-collapse>
             </el-card>
@@ -295,6 +295,7 @@ export default {
   },
   data () {
     return {
+      token: '',
       remarkTypes: [
         {
           value: 0,
@@ -360,12 +361,12 @@ export default {
   filters: {
     formateDate: function (value) {
       let date = new Date(value.date)
-      let y = date.getFullYear()
-      let M = date.getMonth() + 1
-      let d = date.getDate()
-      let h = date.getHours()
-      let m = date.getMinutes()
-      return y + '-' + M + '-' + d + ' ' + h + ':' + m
+      let year = date.getFullYear()
+      let month = date.getMonth() + 1
+      let day = date.getDate()
+      let hour = parseInt(value.time / 60)
+      let minute = value.time % 60
+      return year + '-' + month + '-' + day + ' ' + hour + ':' + minute
     },
     userInfo: function (value) {
       return '申请人：' + value.name + '  手机号：' + value.phone + '  邮箱：' + value.email
@@ -1033,9 +1034,11 @@ export default {
     this.list()
   },
   beforeCreate () {
+    let that = this
     window.parent.postMessage('ok', '*')
     window.addEventListener('message', function (event) {
-      console.log(event)
+      that.token = event.data
+      // that.token = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak'
     })
   }
 }

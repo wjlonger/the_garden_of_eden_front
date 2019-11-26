@@ -254,7 +254,7 @@
                     <td>{{ common | buildTime(finishDetail, 'hd') }}</td>
                     <td> - </td>
                     <td style="text-align:center;">
-                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, null)"></el-button>
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, null)">构建</el-button>
                     </td>
                   </tr>
                   <tr v-for="(project, projectIndex) in buildEastProjects" :key="project.id + '-' + projectIndex">
@@ -267,7 +267,7 @@
                       </div>
                     </td>
                     <td style="text-align:center;">
-                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, project.buildVersion)"></el-button>
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hd', project.projectName, project.buildVersion)">构建</el-button>
                     </td>
                   </tr>
                 </tbody>
@@ -295,7 +295,7 @@
                       </div>
                     </td>
                     <td style="text-align:center;">
-                      <el-button type="primary" icon="el-icon-setting" @click="build('hb', project.projectName, project.buildVersion)"></el-button>
+                      <el-button type="primary" icon="el-icon-setting" @click="build('hb', project.projectName, project.buildVersion)">构建</el-button>
                     </td>
                   </tr>
                 </tbody>
@@ -326,7 +326,7 @@ import {api} from '@/api/api'
 import md5 from 'js-md5'
 
 export default {
-  props: ['onlineInfo'],
+  props: ['onlineInfo', 'token'],
   data () {
     return {
       onlineFlow,
@@ -404,7 +404,7 @@ export default {
           let h = buildTime.getHours()
           let m = buildTime.getMinutes()
           let s = buildTime.getSeconds()
-          return y + '-' + M + '-' + d + ' ' + h + ':' + m + ':' + s
+          return y + '-' + (M < 10 ? ('0' + M) : M) + '-' + (d < 10 ? ('0' + d) : d) + ' ' + (h < 10 ? ('0' + h) : h) + ':' + (m < 10 ? ('0' + m) : m) + ':' + (s < 10 ? ('0' + s) : s)
         }
       }
       return '-'
@@ -647,7 +647,7 @@ export default {
       }
       let that = this
       await api({
-        url: '/api/password/' + this.onlineInfo.id + '?httpToken=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
+        url: '/api/password/' + this.onlineInfo.id + '?httpToken=' + this.token,
         success: function (response) {
           if (response.data.success) {
             that.$notify({
@@ -690,6 +690,9 @@ export default {
               title: '错误',
               message: response.data.msg
             })
+            that.password = ''
+            that.onlineDetail = []
+            that.finishDetail = []
           }
         },
         error: function (response) {
@@ -697,10 +700,14 @@ export default {
             title: '失败',
             message: '请求失败，请稍后再次尝试'
           })
+          that.password = ''
+          that.onlineDetail = []
+          that.finishDetail = []
         }
       })
     },
     async build (region, taskName, tag) {
+      let that = this
       await api({
         url: '/api/onlineapp/build',
         params: {
@@ -708,14 +715,39 @@ export default {
           region: region,
           taskName: taskName,
           tag: tag,
-          httpToken: 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIwMjE1NTMyMjYzMjEzODkzNzkiLCJuYW1lIjoiJUU1JTkwJUI0JUU0JUJGJThBJUU5JUJFJTk5IiwiZXhwIjoxNTc0OTA0MTM4fQ.jBdjWv0UQwmH9xKy7vk9ubIA_esjaM2o4QiUmhvsQak',
+          httpToken: this.token,
           password: this.passwordProxy
         },
         method: 'POST',
         success: function (response) {
-          console.log(response)
+          that.$notify({
+            type: response.data.success ? 'success' : 'error',
+            title: response.data.success ? '成功' : '失败',
+            message: response.data.msg
+          })
+          if (!response.data.success) {
+            that.password = ''
+            that.onlineDetail = []
+            that.finishDetail = []
+          }
+        },
+        error: function (response) {
+          that.$notify.error({
+            title: '失败',
+            message: '网络异常，请稍后再试'
+          })
+          that.password = ''
+          that.onlineDetail = []
+          that.finishDetail = []
         }
       })
+    }
+  },
+  watch: {
+    onlineInfo: function (val) {
+      if (this.password && this.password.length > 0 && this.onlineDetail && this.onlineDetail.length > 0) {
+        this.getOnlineNeedDetail()
+      }
     }
   }
 }

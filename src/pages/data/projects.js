@@ -21,7 +21,6 @@ const servers = [
   {value: 'zys-pay', label: 'zys-pay', url: 'http://zys.zhiyunshan.com/pay/shl/info'},
   {value: 'zys-upload', label: 'zys-upload', url: 'http://zys.zhiyunshan.com/upload/shl/info'},
   {value: 'zys-report', label: 'zys-report', url: 'http://zys.zhiyunshan.com/report/shl/info'},
-  // {value: 'zys-payschedule', label: 'zys-payschedule', url: 'http://zys.zhiyunshan.com/payschedule/shl/info'},
   {value: 'zys-openapi-base', label: 'zys-openapi-base', url: 'http://zys.zhiyunshan.com/openapi-base/shl/info'},
   {value: 'zys-openapi-pay', label: 'zys-openapi-pay', url: 'http://zys.zhiyunshan.com/openapi-pay/shl/info'},
   {value: 'zys-access', label: 'zys-access', url: 'http://zys.zhiyunshan.com/access/shl/info'},
@@ -30,7 +29,8 @@ const servers = [
   {value: 'zys-monitor', label: 'zys-monitor', url: 'http://zys.zhiyunshan.com/monitor/shl/info'},
   {value: 'zys-tiancang', label: 'zys-tiancang', url: 'http://zys.zhiyunshan.com/tiancang/shl/info'},
   {value: 'zys-mini-tools', label: 'zys-mini-tools', url: 'http://zys.zhiyunshan.com/mini-tools/shl/info'},
-  {value: 'zys-retail', label: 'zys-retail', url: 'http://zys.zhiyunshan.com/retail/shl/info'}
+  {value: 'zys-retail', label: 'zys-retail', url: 'http://zys.zhiyunshan.com/retail/shl/info'},
+  {value: 'zys-transaction', label: 'zys-transaction', url: 'http://zys.zhiyunshan.com/transaction/shl/info'}
 ]
 
 const commons = ['common-api', 'common-spring', 'common-util']
@@ -44,7 +44,6 @@ const gits = new Map(
     ['front-reserve', 'http://192.168.1.254:8989/zhiyunshan/web/zys-reserve-front.git'],
     ['front-mobile', 'http://192.168.1.254:8989/zhiyunshan/web/zys-mobile-front.git'],
     ['front-aux', 'http://192.168.1.254:8989/zqsy-nb/zys-web-group/stats-manage-front.git'],
-    // ['zys-auth', 'http://192.168.1.254:8989/test/test-git.git'],
     ['zys-auth', 'http://192.168.1.254:8989/zhiyunshan/server/zys-auth.git'],
     ['zys-base', 'http://192.168.1.254:8989/zhiyunshan/server/zys-base.git'],
     ['zys-food', 'http://192.168.1.254:8989/zhiyunshan/server/zys-food.git'],
@@ -59,7 +58,8 @@ const gits = new Map(
     ['zys-monitor', 'http://192.168.1.254:8989/zhiyunshan/server/zys-monitor.git'],
     ['zys-tiancang', 'http://192.168.1.254:8989/zhiyunshan/server/zys-tiancang.git'],
     ['zys-mini-tools', 'http://192.168.1.254:8989/zhiyunshan/server/zys-mini-tools.git'],
-    ['zys-retail', 'http://192.168.1.254:8989/zhiyunshan/server/retail.git']
+    ['zys-retail', 'http://192.168.1.254:8989/zhiyunshan/server/retail.git'],
+    ['zys-transaction', 'http://192.168.1.254:8989/zhiyunshan/server/zys-transaction.git']
   ]
 )
 export { fronts, eastServers, servers, gits, commons }
