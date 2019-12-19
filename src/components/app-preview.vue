@@ -643,8 +643,8 @@ export default {
           title: '失败',
           message: '本次上线版本还未填写哦~'
         })
-        that.onlineDetail = []
-        that.finishDetail = []
+        this.onlineDetail = []
+        this.finishDetail = []
         return
       }
       let that = this
@@ -678,8 +678,8 @@ export default {
           title: '失败',
           message: '本次上线版本还未填写哦~'
         })
-        that.onlineDetail = []
-        that.finishDetail = []
+        this.onlineDetail = []
+        this.finishDetail = []
         return
       }
       let that = this
@@ -734,7 +734,7 @@ export default {
             that.onlineDetail = []
             that.finishDetail = []
           } else {
-            that.getOnlineNeedDetail();
+            that.getOnlineNeedDetail()
           }
         },
         error: function (response) {
