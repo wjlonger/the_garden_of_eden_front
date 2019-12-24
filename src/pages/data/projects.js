@@ -2,7 +2,8 @@ const fronts = [
   {value: 'front-manage', label: 'front-manage', url: 'http://zys.zhiyunshan.com/console/version.txt'},
   {value: 'front-reserve', label: 'front-reserve', url: 'http://zys.zhiyunshan.com/reserve/version.txt'},
   {value: 'front-mobile', label: 'front-mobile', url: 'http://zys.zhiyunshan.com/mobile/version.txt'},
-  {value: 'front-aux', label: 'front-aux', url: 'http://zys.zhiyunshan.com/aux/version.txt'}
+  {value: 'front-aux', label: 'front-aux', url: 'http://zys.zhiyunshan.com/aux/version.txt'},
+  {value: 'warehouse-orderApp', label: 'warehouse-orderApp', url: 'http://zys.zhiyunshan.com/orderapp/version.txt'}
 ]
 
 const eastServers = [
@@ -44,6 +45,7 @@ const gits = new Map(
     ['front-reserve', 'http://192.168.1.254:8989/zhiyunshan/web/zys-reserve-front.git'],
     ['front-mobile', 'http://192.168.1.254:8989/zhiyunshan/web/zys-mobile-front.git'],
     ['front-aux', 'http://192.168.1.254:8989/zqsy-nb/zys-web-group/stats-manage-front.git'],
+    ['warehouse-orderApp', 'http://192.168.1.254:8989/zhiyunshan/web/zys-warehouse-orderApp.git'],
     ['zys-auth', 'http://192.168.1.254:8989/zhiyunshan/server/zys-auth.git'],
     ['zys-base', 'http://192.168.1.254:8989/zhiyunshan/server/zys-base.git'],
     ['zys-food', 'http://192.168.1.254:8989/zhiyunshan/server/zys-food.git'],

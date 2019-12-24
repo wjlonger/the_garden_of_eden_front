@@ -19,7 +19,7 @@
                      :move="dragMove" >
                      <transition-group>
                       <el-col v-for="(need, needIndex) in online.needList" :key="need.id" :span="8" style="margin-top: 10px;" >
-                        <el-card shadow="hover" @click.native="openOnlineNeedDrawer(need)" >
+                        <el-card shadow="hover" @click.native="openOnlineNeedDrawer(need)" class="upload-application-title" >
                           {{ needIndex + 1 }}、{{ need | needInfo(onlineNeedTypes) }}
                         </el-card>
                       </el-col>
@@ -375,6 +375,7 @@ export default {
       if (value.type === undefined) {
         return ''
       }
+      console.log(value)
       return '【' + onlineNeedTypes[value.type]['label'] + '】 ' + value.name
     }
   },
@@ -1054,9 +1055,11 @@ export default {
     font-size: 40px;
     cursor: pointer;
   }
+
   i.new-refresh:active{
     box-shadow: -1px -1px 2px 2px #ccc;
   }
+
   .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 240px;
     min-height: 0px;
@@ -1076,5 +1079,13 @@ export default {
 
   .el-row {
     top: -10px !important;
+  }
+
+  .upload-application-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    height: 70px;
   }
 </style>
